@@ -1,0 +1,15 @@
+{
+  "name": "ciklum-task",
+  "version": "0.0.1",
+  "description": "react node application for managing suggestions",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Alexander Kovalke",
+  "license": "ISC",
+  "devDependencies": {
+    "webpack": "^4.7.0",
+    "webpack-cli": "^2.1.2"
+  }
+}
