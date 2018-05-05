@@ -1,2 +1,8 @@
-# Dependency directories
+
 node_modules
+
+.babel_cache
+
+.DS_Store
+
+src/server-es5.js
