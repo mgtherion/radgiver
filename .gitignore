@@ -5,4 +5,7 @@ node_modules
 
 .DS_Store
 
+*.map
+
 src/server-es5.js
+src/static/js/bundle.js
