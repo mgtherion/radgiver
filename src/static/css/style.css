@@ -1,0 +1,12 @@
+.rad-pharagraph {
+    margin-bottom: 20px;
+}
+
+.rad-pharagraph > div{
+    margin-bottom: 5px;
+}
+
+.rad-pharagraph > textarea {
+    width: 800px;
+    height: 100px;
+}

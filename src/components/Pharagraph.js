@@ -8,9 +8,9 @@ class Pharagraph extends React.Component {
 
     render() {
         return (
-            <div>
-                <span>{this.props.text}</span>
-                <textarea>{this.text}</textarea>
+            <div className="rad-pharagraph">
+                <div>{this.props.text}</div>
+                <textarea defaultValue={this.text}></textarea>
                 <button>Send</button>
             </div>
         );
