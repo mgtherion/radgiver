@@ -1,17 +1,6 @@
 import path from 'path';
 import nodeExternals from 'webpack-node-externals';
 
-const client = {
-    target: 'web',
-    entry: {
-        js: './src/app-client.js'
-    },
-    output: {
-        path: path.join(__dirname, 'src', 'static', 'js'),
-        filename: 'bundle.js'
-    }
-}
-
 const server = {
     target: 'node',
     node: {
@@ -43,4 +32,4 @@ const server = {
 }
 
 
-export default [client, server];
+export default server;
