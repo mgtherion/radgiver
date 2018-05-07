@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "webpack -p",
-    "start": "npm run build && node src/server-es5.js"
+    "start": "npm run build && node src/server-es5.js",
+    "postinstall": "npm run start"
   },
   "author": "Alexander Kovalke",
   "dependencies": {
