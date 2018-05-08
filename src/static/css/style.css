@@ -2,11 +2,11 @@
     margin-bottom: 20px;
 }
 
-.rad-pharagraph > div{
+.rad-pharagraph > form > div {
     margin-bottom: 5px;
 }
 
-.rad-pharagraph > textarea {
+.rad-pharagraph > form > textarea {
     width: 800px;
     height: 100px;
 }

@@ -3,15 +3,39 @@ import React from 'react';
 class Pharagraph extends React.Component {
     constructor(props) {
         super(props);
-        this.text = props.text.slice();
+        this.state = {
+            text: props.text,
+            edited: props.text.slice()
+        };
+
+        this.handleEdit = this.handleEdit.bind(this);
+    }
+
+    handleEdit(event) {
+        this.setState({edited: event.target.value});
+    }
+
+    handleSubmit(event) {
+
     }
 
     render() {
+        const { text, edited } = this.state;
+        const enabled = text !== edited;
+
         return (
             <div className="rad-pharagraph">
-                <div>{this.props.text}</div>
-                <textarea defaultValue={this.text}></textarea>
-                <button>Send</button>
+                <form>
+                    <div>{this.state.text}</div>
+                    <textarea
+                        defaultValue={this.state.edited}
+                        onChange={this.handleEdit}>
+                    </textarea>
+                    <button
+                        disabled={!enabled}>
+                            Send
+                    </button>
+                </form>
             </div>
         );
     }

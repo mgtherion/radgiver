@@ -4,7 +4,7 @@ import React from 'react';
 import isUrl from 'is-url';
 import request from 'request';
 import cheerio from 'cheerio';
-import mongodb from 'mongodb';
+//import mongodb from 'mongodb';
 import { Server } from 'http';
 import { renderToString } from 'react-dom/server';
 import SuggestPage from './components/SuggestPage';
@@ -18,6 +18,31 @@ app.set('views', path.join(__dirname, 'views'));
 
 app.use(Express.static(path.join(__dirname, 'static')));
 
+/*
+var db;
+
+mongodb.MongoClient.connect(process.env.MONGODB_URI, function(err, database) {
+    if (err) {
+        console.log(err);
+        process.exit(1);
+    }
+
+    db = database;
+    console.log('Database connection ready');
+
+    server.listen(process.env.PORT || 3000, function() {
+        let port = server.address().port;
+        return console.info(`Server running on http://localhost:${port}`);
+    });
+});
+*/
+
+const port = process.env.PORT || 3000;
+server.listen(port, function() {
+    return console.info(`Server running on http://localhost:${port}`);
+});
+
+
 const isArticleValid = (param) => {
     if (!param) return {'error': 'missing articleUrl parameter'};
     if (!isUrl(param)) return {'error': 'articleUrl should be url'};
@@ -26,6 +51,10 @@ const isArticleValid = (param) => {
 }
 
 app.get('/fb', (req, res) => {
+    return res.status(200).render('index');
+});
+
+app.get('/api/parse', (req, res) => {
     let data = {
         title: '',
         pharagraphs: []
@@ -42,22 +71,14 @@ app.get('/fb', (req, res) => {
         $("div[itemprop='articleBody'] > p").each(function() {
             data.pharagraphs.push($(this).text());
         });
-        let markup = renderToString(
-            <SuggestPage
-                data={data}
-            />
-        );
 
-        return res.status(200).render('index', { markup });
+        return res.status(200).json(data);
     });
 });
 
-
-
-const port = process.env.PORT || 3000;
-server.listen(port, (err) => {
-    if (err) {
-        return console.error(err);
-    }
-    return console.info(`Server running on http://localhost:${port}`);
+app.post('/fb', (req, res) => {
+    console.log('POST ACCEPTED');
 });
+
+
+
