@@ -7,7 +7,8 @@ import cheerio from 'cheerio';
 //import mongodb from 'mongodb';
 import { Server } from 'http';
 import { renderToString } from 'react-dom/server';
-import SuggestPage from './components/SuggestPage';
+import SuggestPage from './components/Suggest/Page';
+import ResultPage from './components/Result/Page';
 
 
 const app = new Express();
@@ -17,6 +18,7 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 app.use(Express.static(path.join(__dirname, 'static')));
+app.use(Express.json());
 
 /*
 var db;
@@ -50,9 +52,10 @@ const isArticleValid = (param) => {
     return false;
 }
 
-app.get('/fb', (req, res) => {
+app.get(/^\/fb(\/results)?$/, (req, res) => {
     return res.status(200).render('index');
 });
+
 
 app.get('/api/parse', (req, res) => {
     let data = {
@@ -76,9 +79,74 @@ app.get('/api/parse', (req, res) => {
     });
 });
 
-app.post('/fb', (req, res) => {
-    console.log('POST ACCEPTED');
+app.post('/api/suggest', (req, res) => {
+    console.log('SUGGESTED', req.body); // id, articleUrl, originalText, usersText, isApproved
 });
 
+app.get('/api/results', (req, res) => {
 
+    let data = [
+        {
+            articleUrl: 'http://article1',
+            pharagraphs: [
+                {
+                    text: 'name1',
+                    suggestions: ['text1', 'text2', 'text3']
+                },
+                {
+                    text: 'name2',
+                    suggestions: ['text1', 'text2', 'text3']
+                },
+                {
+                    text: 'name3',
+                    suggestions: ['text1', 'text2', 'text3']
+                },
+            ]
+        },
+        {
+            articleUrl: 'http://article2',
+            pharagraphs: [
+                {
+                    text: 'name1',
+                    suggestions: ['text1', 'text2', 'text3']
+                },
+                {
+                    text: 'name2',
+                    suggestions: ['text1', 'text2', 'text3']
+                },
+                {
+                    text: 'name3',
+                    suggestions: ['text1', 'text2', 'text3']
+                },
+            ]
+        },
+        {
+            articleUrl: 'http://article3',
+            pharagraphs: [
+                {
+                    text: 'name1',
+                    suggestions: ['text1', 'text2', 'text3']
+                },
+                {
+                    text: 'name2',
+                    suggestions: ['text1', 'text2', 'text3']
+                },
+                {
+                    text: 'name3',
+                    suggestions: ['text1', 'text2', 'text3']
+                },
+            ]
+        }
+    ]
+
+    return res.status(200).json(data);
+});
+
+app.post('/api/approve', (req, res) => {
+    console.log('APPROVED', req.body);
+});
+
+app.delete('/api/delete', (req, res) => {
+    console.log('DELETED', req.body);
+});
 

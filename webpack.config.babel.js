@@ -19,7 +19,8 @@ const client = {
                 },
             },
         ],
-    }
+    },
+    devtool: 'source-map'
 }
 
 const server = {
