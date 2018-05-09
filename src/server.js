@@ -32,8 +32,8 @@ mongodb.MongoClient.connect(process.env.MONGODB_URI, function(err, database) {
     db = database;
     console.log('Database connection ready');
 
-    server.listen(process.env.PORT || 3000, function() {
-        let port = server.address().port;
+    const port = process.env.PORT || 3000;
+    server.listen(port, function() {
         return console.info(`Server running on http://localhost:${port}`);
     });
 });
@@ -43,6 +43,10 @@ const port = process.env.PORT || 3000;
 server.listen(port, function() {
     return console.info(`Server running on http://localhost:${port}`);
 });
+
+
+
+
 
 
 const isArticleValid = (param) => {
@@ -55,7 +59,6 @@ const isArticleValid = (param) => {
 app.get(/^\/fb(\/results)?$/, (req, res) => {
     return res.status(200).render('index');
 });
-
 
 app.get('/api/parse', (req, res) => {
     let data = {
@@ -75,15 +78,15 @@ app.get('/api/parse', (req, res) => {
             data.pharagraphs.push($(this).text());
         });
 
+        //save to db
+
         return res.status(200).json(data);
     });
 });
 
-app.post('/api/suggest', (req, res) => {
-    console.log('SUGGESTED', req.body); // id, articleUrl, originalText, usersText, isApproved
-});
-
 app.get('/api/results', (req, res) => {
+
+    //load from db
 
     let data = [
         {
@@ -142,11 +145,16 @@ app.get('/api/results', (req, res) => {
     return res.status(200).json(data);
 });
 
+app.post('/api/suggest', (req, res) => {
+    // id, articleUrl, originalText, usersText, isApproved
+    res.status(200).json({'status': 'suggested'});
+});
+
 app.post('/api/approve', (req, res) => {
-    console.log('APPROVED', req.body);
+    res.status(200).json({'status': 'approved'});
 });
 
 app.delete('/api/delete', (req, res) => {
-    console.log('DELETED', req.body);
+    res.status(200).json({'status': 'deleted'});
 });
 

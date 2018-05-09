@@ -7,7 +7,7 @@ class Pharagraph extends React.Component {
         this.state = {
             article: props.article,
             text: props.text,
-            edited: props.text.slice()
+            edited: props.text
         };
 
         this.handleEdit = this.handleEdit.bind(this);

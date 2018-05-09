@@ -10,6 +10,8 @@ class ResultPage extends React.Component {
             articles: [],
             status: 'init'
         }
+
+        this.handleDelete = this.handleDelete.bind(this);
     }
 
     componentWillMount() {
@@ -23,6 +25,14 @@ class ResultPage extends React.Component {
             });
     }
 
+    handleDelete(name) {
+        let articles = this.state.articles.slice();
+        articles = articles.filter(a => a.articleUrl !== name);
+        this.setState({
+            articles: articles
+        })
+    }
+
     render() {
         let articles = this.state.articles;
         return (
@@ -34,6 +44,8 @@ class ResultPage extends React.Component {
                             key={article.articleUrl}
                             text={article.articleUrl}
                             pharagraphs={article.pharagraphs}
+                            removeArticle={(i) => this.handleDelete(i)}
+
                         />
                     })
                 }

@@ -10,9 +10,32 @@ class ArticlesList extends React.Component {
             text: props.text,
             pharagraphs: props.pharagraphs
         };
+
+        this.handleRequestCreate = this.handleRequestCreate.bind(this);
+        this.handleRequestApprove = this.handleRequestApprove.bind(this);
+        this.handleRequestDelete = this.handleRequestDelete.bind(this);
+        this.handleDelete = this.handleDelete.bind(this);
     }
 
-    handleApprove(pharagraph, suggestion) {
+    handleRequestCreate(pharagraph, suggestion) {
+        fetch('/api/suggest', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                articleUrl: this.state.text,
+                originalText: pharagraph,
+                usersText: suggestion,
+                approved: true
+            })
+        }).then((response) => {
+            this.handleDelete(pharagraph);
+        });
+    }
+
+    handleRequestApprove(pharagraph, suggestion) {
         fetch('/api/approve', {
             method: 'POST',
             headers: {
@@ -25,11 +48,11 @@ class ArticlesList extends React.Component {
                 usersText: suggestion
             })
         }).then((response) => {
-            console.log('RESPONSE', response);
+            this.handleDelete(pharagraph);
         });
     }
 
-    handleDelete(pharagraph) {
+    handleRequestDelete(pharagraph) {
         fetch('/api/delete', {
             method: 'DELETE',
             headers: {
@@ -41,8 +64,21 @@ class ArticlesList extends React.Component {
                 originalText: pharagraph
             })
         }).then((response) => {
-            console.log('RESPONSE', response);
+            this.handleDelete(pharagraph);
         });
+    }
+
+    handleDelete(name) {
+        let pharagraphs = this.state.pharagraphs.slice();
+        pharagraphs = pharagraphs.filter(p => p.text !== name);
+        this.setState({
+            pharagraphs: pharagraphs
+        })
+        console.log('pharagraphs', pharagraphs);
+        if (!pharagraphs.length) {
+            console.log('remove');
+            this.props.removeArticle(this.state.text);
+        }
     }
 
     render() {
@@ -58,8 +94,9 @@ class ArticlesList extends React.Component {
                                 key={pharagraph.text}
                                 text={pharagraph.text}
                                 suggestions={pharagraph.suggestions}
-                                approve={(p, s) => this.handleApprove(p, s)}
-                                delete={(p) => this.handleDelete(p)}
+                                approve={(p, s) => this.handleRequestApprove(p, s)}
+                                delete={(p) => this.handleRequestDelete(p)}
+                                create={(p, s) => this.handleRequestCreate(p, s)}
                             />
                         })
                     }
