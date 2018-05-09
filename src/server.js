@@ -4,7 +4,7 @@ import React from 'react';
 import isUrl from 'is-url';
 import request from 'request';
 import cheerio from 'cheerio';
-//import mongodb from 'mongodb';
+import mongodb from 'mongodb';
 import { Server } from 'http';
 import { renderToString } from 'react-dom/server';
 import SuggestPage from './components/Suggest/Page';
@@ -20,9 +20,11 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(Express.static(path.join(__dirname, 'static')));
 app.use(Express.json());
 
-/*
-var db;
 
+var db;
+const SUGGESTIONS_COLLECTION = 'suggestions';
+
+/*
 mongodb.MongoClient.connect(process.env.MONGODB_URI, function(err, database) {
     if (err) {
         console.log(err);
@@ -78,8 +80,6 @@ app.get('/api/parse', (req, res) => {
             data.pharagraphs.push($(this).text());
         });
 
-        //save to db
-
         return res.status(200).json(data);
     });
 });
@@ -87,6 +87,14 @@ app.get('/api/parse', (req, res) => {
 app.get('/api/results', (req, res) => {
 
     //load from db
+    db.collection(SUGGESTIONS_COLLECTION).find({}).toArray(function(err, docs) {
+        if (err) {
+            res.status(500).json({'error': err.message});
+        } else {
+            console.log('DOCS', docs);
+            //res.status(200).json(docs);
+        }
+    });
 
     let data = [
         {
@@ -146,15 +154,58 @@ app.get('/api/results', (req, res) => {
 });
 
 app.post('/api/suggest', (req, res) => {
+    let newSuggestion = {
+        articleUrl: req.body.articleUrl,
+        originalText: req.body.originalText,
+        usersText: req.body.usersText,
+        isApproved: req.body.isApproved? true: false
+    }
     // id, articleUrl, originalText, usersText, isApproved
-    res.status(200).json({'status': 'suggested'});
+    db.collection(SUGGESTIONS_COLLECTION).insertOne(
+        newSuggestion,
+        function(err, docs) {
+            if (err) {
+                res.status(500).json({'error': err.message});
+            } else {
+                res.status(201).json(docs);
+            }
+        }
+    );
 });
 
 app.post('/api/approve', (req, res) => {
-    res.status(200).json({'status': 'approved'});
+    let suggestion = {
+        articleUrl: req.body.articleUrl,
+        originalText: req.body.originalText,
+        usersText: req.body.usersText
+    }
+    db.collection(SUGGESTIONS_COLLECTION).updateOne(
+        suggestion,
+        { $set: { 'isApproved': true},
+        function(err, docs) {
+            if (err) {
+                res.status(500).json({'error': err.message});
+            } else {
+                res.status(201).json(docs);
+            }
+        }
+    );
 });
 
 app.delete('/api/delete', (req, res) => {
-    res.status(200).json({'status': 'deleted'});
+    let pharagraph = {
+        articleUrl: req.body.articleUrl,
+        originalText: req.body.originalText
+    }
+    db.collection(SUGGESTIONS_COLLECTION).deleteMany(
+        pharagraph,
+        function(err, docs) {
+            if (err) {
+                res.status(500).json({'error': err.message});
+            } else {
+                res.status(200).json(docs);
+            }
+        }
+    );
 });
 

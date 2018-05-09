@@ -28,7 +28,7 @@ class ArticlesList extends React.Component {
                 articleUrl: this.state.text,
                 originalText: pharagraph,
                 usersText: suggestion,
-                approved: true
+                isApproved: true
             })
         }).then((response) => {
             this.handleDelete(pharagraph);
