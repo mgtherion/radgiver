@@ -138,7 +138,7 @@ app.post('/api/suggest', (req, res) => {
         articleUrl: req.body.articleUrl,
         originalText: req.body.originalText,
         usersText: req.body.usersText,
-        isApproved: req.body.isApproved//TODO WHAT ? true: false
+        isApproved: req.body.isApproved == 'true'//TODO WHAT ? true: false
     }
 
     db.collection(SUGGESTIONS_COLLECTION).insertOne(
@@ -157,9 +157,30 @@ app.post('/api/suggest', (req, res) => {
 app.post('/api/approve', (req, res) => {
     let suggestion = {
         articleUrl: req.body.articleUrl,
-        originalText: req.body.originalText,
-        usersText: req.body.usersText
+        originalText: req.body.originalText
     }
+    db.collection(SUGGESTIONS_COLLECTION).updateMany(
+        suggestion,
+        { $set: { 'isApproved': false }},
+        function(err, docs) {
+            if (err) {
+                res.status(500).json({'error': err.message});
+            } else {
+                suggestion.usersText = req.body.usersText;
+                db.collection(SUGGESTIONS_COLLECTION).updateOne(
+                    suggestion,
+                    { $set: { 'isApproved': true }},
+                    function(err, docs) {
+                        if (err) {
+                            res.status(500).json({'error': err.message});
+                        } else {
+                            res.status(201).json(docs);
+                        }
+                    }
+                );
+            }
+        }
+    );
     db.collection(SUGGESTIONS_COLLECTION).updateOne(
         suggestion,
         { $set: { 'isApproved': true }},
