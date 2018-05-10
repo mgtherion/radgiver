@@ -49,7 +49,6 @@ class SuggestPage extends React.Component {
                     this.state.error? '' :
                     (
                         <div>
-                            <h3>List of pharagraphs</h3>
                             {
                                 items.map((item) =>
                                     <Pharagraph

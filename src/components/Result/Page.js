@@ -5,19 +5,22 @@ class ResultPage extends React.Component {
     constructor(props) {
         super(props);
 
-        //TODO check for isApproved url param and send it
+        const url_string = window.location.href;
+        const url = new URL(url_string);
+        const showApproved = url.searchParams.get('showApproved');
 
         this.state = {
             title: 'loading...',
             articles: [],
-            error: false
+            error: false,
+            showApproved: showApproved
         }
 
         this.handleDelete = this.handleDelete.bind(this);
     }
 
     componentWillMount() {
-        fetch('/api/results')
+        fetch('/api/results?showApproved=' + this.state.showApproved)
             .then((response) => response.json())
             .then((data) => {
                 this.setState({

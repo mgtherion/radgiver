@@ -39,43 +39,56 @@ mongodb.MongoClient.connect(process.env.MONGODB_URI, function(err, database) {
         return console.info(`Server running on http://localhost:${port}`);
     });
 });
+
 /*const port = process.env.PORT || 3000;
 server.listen(port, function() {
     return console.info(`Server running on http://localhost:${port}`);
 });*/
 
-//TODO too complex
-const formatResults = (items) => {
-    let articles = _.groupBy(items, 'articleUrl');
-    let result = [];
+const formatResults = (items, showApproved = false) => {
+    let articles = new Set(items.map(item => item.articleUrl));
+    let results = [];
 
-    for (let articleName of Object.keys(articles)) {
+    for (let aName of [...articles]) {
+        let article = {
+            articleUrl: aName,
+            pharagraphs: []
+        }
 
-        let pharagraphs = [];
-        let originals = _.groupBy(articles[articleName], 'originalText');
+        let suggestionsByArticle = items
+            .filter(item => item.articleUrl === aName);
+        let pharagraphs = new Set(suggestionsByArticle.map(item => item.originalText));
 
-        for (let originalName of Object.keys(originals)) {
-            originals[originalName].map((item)=>{item.usersText})
-            pharagraphs.push({
-                text: originalName,
-                suggestions: originals[originalName].map(item => item.usersText)
+        for (let pName of [...pharagraphs]) {
+            let pharagraph = {
+                text: pName,
+                suggestions: []
+            }
+
+            let suggestionsByOriginal = suggestionsByArticle
+                .filter(item => item.originalText === pName);
+
+            let hasApproved = false;
+            suggestionsByOriginal.map((item) => {
+                if (item.isApproved) {
+                    hasApproved = true;
+                }
+                pharagraph.suggestions.push(item.usersText);
             });
+            if (hasApproved === showApproved) {
+                article.pharagraphs.push(pharagraph);
+            }
         }
-
-        let resultItem = {
-            articleUrl: articleName,
-            pharagraphs: pharagraphs
+        if (article.pharagraphs.length) {
+            results.push(article);
         }
-
-        result.push(resultItem);
     }
 
-    return result;
+    return results;
 }
 
 const isArticleValid = (param) => {
     if (!param) return {'error': 'missing articleUrl parameter'};
-    //TODO check if is-url lib decent
     if (!isUrl(param)) return {'error': 'articleUrl should be url'};
     if (param.indexOf('dagbladet.no') === -1) return {'error': 'dagbladet functionality only'};
     return false;
@@ -95,7 +108,6 @@ app.get('/api/parse', (req, res) => {
     if (err) return res.status(400).json(err);
 
     request(url, (error, response, body) => {
-        //TODO check if has results
         if (error) throw error;
         var $ = cheerio.load(body);
 
@@ -110,68 +122,13 @@ app.get('/api/parse', (req, res) => {
 
 //TODO approve flag
 app.get('/api/results', (req, res) => {
-    /*let data = [
-        {
-            articleUrl: 'http://article1',
-            pharagraphs: [
-                {
-                    text: 'name1',
-                    suggestions: ['text1', 'text2', 'text3']
-                },
-                {
-                    text: 'name2',
-                    suggestions: ['text1', 'text2', 'text3']
-                },
-                {
-                    text: 'name3',
-                    suggestions: ['text1', 'text2', 'text3']
-                },
-            ]
-        },
-        {
-            articleUrl: 'http://article2',
-            pharagraphs: [
-                {
-                    text: 'name1',
-                    suggestions: ['text1', 'text2', 'text3']
-                },
-                {
-                    text: 'name2',
-                    suggestions: ['text1', 'text2', 'text3']
-                },
-                {
-                    text: 'name3',
-                    suggestions: ['text1', 'text2', 'text3']
-                },
-            ]
-        },
-        {
-            articleUrl: 'http://article3',
-            pharagraphs: [
-                {
-                    text: 'name1',
-                    suggestions: ['text1', 'text2', 'text3']
-                },
-                {
-                    text: 'name2',
-                    suggestions: ['text1', 'text2', 'text3']
-                },
-                {
-                    text: 'name3',
-                    suggestions: ['text1', 'text2', 'text3']
-                },
-            ]
-        }
-    ];
-    res.status(200).json(data);*/
+    let showApproved = (req.query.showApproved == 'true');
 
     db.collection(SUGGESTIONS_COLLECTION).find({}).toArray(function(err, docs) {
         if (err) {
             res.status(500).json({'error': err.message});
         } else {
-            console.log('DOCS', docs);
-
-            res.status(200).json(formatResults(docs));
+            res.status(200).json(formatResults(docs, showApproved));
         }
     });
 });
@@ -181,7 +138,7 @@ app.post('/api/suggest', (req, res) => {
         articleUrl: req.body.articleUrl,
         originalText: req.body.originalText,
         usersText: req.body.usersText,
-        isApproved: req.body.isApproved? true: false
+        isApproved: req.body.isApproved//TODO WHAT ? true: false
     }
 
     db.collection(SUGGESTIONS_COLLECTION).insertOne(
