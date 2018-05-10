@@ -12,7 +12,7 @@ class SuggestPage extends React.Component {
         this.state = {
             title: 'loading...',
             pharagraphs: [],
-            status: 'init',
+            error: false,
             article: articleUrl
         }
     }
@@ -26,6 +26,12 @@ class SuggestPage extends React.Component {
                     title: data.title,
                     pharagraphs: data.pharagraphs
                 });
+            })
+            .catch((error) => {
+                this.setState({
+                    error: true,
+                    title: error.error
+                });
             });
 
     }
@@ -37,7 +43,7 @@ class SuggestPage extends React.Component {
         return (
             <div className="row">
                 <h2>{title}</h2>
-                <h3>List of pharagraphs:</h3>
+                <h3>{this.state.error? '' : 'List of pharagraphs:'}</h3>
                 {
                     items.map((item) =>
                         <Pharagraph

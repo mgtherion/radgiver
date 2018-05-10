@@ -1,6 +1,5 @@
 import path from 'path';
 import Express from 'express';
-import React from 'react';
 import isUrl from 'is-url';
 import request from 'request';
 import cheerio from 'cheerio';
@@ -41,13 +40,30 @@ mongodb.MongoClient.connect(process.env.MONGODB_URI, function(err, database) {
     });
 });
 
-
+//TODO too complex
 const formatResults = (items) => {
-    let temp = _.groupBy(items, 'articleUrl');
-
+    let articles = _.groupBy(items, 'articleUrl');
     let result = [];
-    for (let i of Object.keys(r)) {
-        result = result.concat(_.groupBy(r[i], 'b'));
+
+    for (let articleName of Object.keys(articles)) {
+
+        let pharagraphs = [];
+        let originals = _.groupBy(articles[articleName], 'originalText');
+
+        for (let originalName of Object.keys(originals)) {
+            originals[originalName].map((item)=>{item.usersText})
+            pharagraphs.push({
+                text: originalName,
+                suggestions: originals[originalName].map(item => item.usersText)
+            });
+        }
+
+        let resultItem = {
+            articleUrl: articleName,
+            pharagraphs: pharagraphs
+        }
+
+        result.push(resultItem);
     }
 
     return result;
@@ -55,6 +71,7 @@ const formatResults = (items) => {
 
 const isArticleValid = (param) => {
     if (!param) return {'error': 'missing articleUrl parameter'};
+    //TODO check if is-url lib decent
     if (!isUrl(param)) return {'error': 'articleUrl should be url'};
     if (param.indexOf('dagbladet.no') === -1) return {'error': 'dagbladet functionality only'};
     return false;
@@ -74,6 +91,7 @@ app.get('/api/parse', (req, res) => {
     if (err) return res.status(400).json(err);
 
     request(url, (error, response, body) => {
+        //TODO check if has results
         if (error) throw error;
         var $ = cheerio.load(body);
 
@@ -86,9 +104,8 @@ app.get('/api/parse', (req, res) => {
     });
 });
 
+//TODO approve flag
 app.get('/api/results', (req, res) => {
-
-    //load from db
     db.collection(SUGGESTIONS_COLLECTION).find({}).toArray(function(err, docs) {
         if (err) {
             res.status(500).json({'error': err.message});
@@ -98,62 +115,6 @@ app.get('/api/results', (req, res) => {
             res.status(200).json(formatResults(docs));
         }
     });
-
-    /*let data = [
-        {
-            articleUrl: 'http://article1',
-            pharagraphs: [
-                {
-                    text: 'name1',
-                    suggestions: ['text1', 'text2', 'text3']
-                },
-                {
-                    text: 'name2',
-                    suggestions: ['text1', 'text2', 'text3']
-                },
-                {
-                    text: 'name3',
-                    suggestions: ['text1', 'text2', 'text3']
-                },
-            ]
-        },
-        {
-            articleUrl: 'http://article2',
-            pharagraphs: [
-                {
-                    text: 'name1',
-                    suggestions: ['text1', 'text2', 'text3']
-                },
-                {
-                    text: 'name2',
-                    suggestions: ['text1', 'text2', 'text3']
-                },
-                {
-                    text: 'name3',
-                    suggestions: ['text1', 'text2', 'text3']
-                },
-            ]
-        },
-        {
-            articleUrl: 'http://article3',
-            pharagraphs: [
-                {
-                    text: 'name1',
-                    suggestions: ['text1', 'text2', 'text3']
-                },
-                {
-                    text: 'name2',
-                    suggestions: ['text1', 'text2', 'text3']
-                },
-                {
-                    text: 'name3',
-                    suggestions: ['text1', 'text2', 'text3']
-                },
-            ]
-        }
-    ]
-
-    return res.status(200).json(data);*/
 });
 
 app.post('/api/suggest', (req, res) => {
@@ -163,7 +124,7 @@ app.post('/api/suggest', (req, res) => {
         usersText: req.body.usersText,
         isApproved: req.body.isApproved? true: false
     }
-    console.log('Trying to insert', newSuggestion);
+
     db.collection(SUGGESTIONS_COLLECTION).insertOne(
         newSuggestion,
         function(err, docs) {
