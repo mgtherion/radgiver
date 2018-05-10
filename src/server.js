@@ -5,6 +5,7 @@ import isUrl from 'is-url';
 import request from 'request';
 import cheerio from 'cheerio';
 import mongodb from 'mongodb';
+import _ from 'lodash';
 import { Server } from 'http';
 import { renderToString } from 'react-dom/server';
 import SuggestPage from './components/Suggest/Page';
@@ -24,7 +25,7 @@ app.use(Express.json());
 var db;
 const SUGGESTIONS_COLLECTION = 'suggestions';
 
-/*
+
 mongodb.MongoClient.connect(process.env.MONGODB_URI, function(err, database) {
     if (err) {
         console.log(err);
@@ -39,17 +40,18 @@ mongodb.MongoClient.connect(process.env.MONGODB_URI, function(err, database) {
         return console.info(`Server running on http://localhost:${port}`);
     });
 });
-*/
-
-const port = process.env.PORT || 3000;
-server.listen(port, function() {
-    return console.info(`Server running on http://localhost:${port}`);
-});
 
 
+const formatResults = (items) => {
+    let temp = _.groupBy(items, 'articleUrl');
 
+    let result = [];
+    for (let i of Object.keys(r)) {
+        result = result.concat(_.groupBy(r[i], 'b'));
+    }
 
-
+    return result;
+}
 
 const isArticleValid = (param) => {
     if (!param) return {'error': 'missing articleUrl parameter'};
@@ -92,11 +94,12 @@ app.get('/api/results', (req, res) => {
             res.status(500).json({'error': err.message});
         } else {
             console.log('DOCS', docs);
-            //res.status(200).json(docs);
+
+            res.status(200).json(formatResults(docs));
         }
     });
 
-    let data = [
+    /*let data = [
         {
             articleUrl: 'http://article1',
             pharagraphs: [
@@ -150,7 +153,7 @@ app.get('/api/results', (req, res) => {
         }
     ]
 
-    return res.status(200).json(data);
+    return res.status(200).json(data);*/
 });
 
 app.post('/api/suggest', (req, res) => {
@@ -160,11 +163,12 @@ app.post('/api/suggest', (req, res) => {
         usersText: req.body.usersText,
         isApproved: req.body.isApproved? true: false
     }
-    // id, articleUrl, originalText, usersText, isApproved
+    console.log('Trying to insert', newSuggestion);
     db.collection(SUGGESTIONS_COLLECTION).insertOne(
         newSuggestion,
         function(err, docs) {
             if (err) {
+                console.log('ERROR', err);
                 res.status(500).json({'error': err.message});
             } else {
                 res.status(201).json(docs);
@@ -181,7 +185,7 @@ app.post('/api/approve', (req, res) => {
     }
     db.collection(SUGGESTIONS_COLLECTION).updateOne(
         suggestion,
-        { $set: { 'isApproved': true},
+        { $set: { 'isApproved': true }},
         function(err, docs) {
             if (err) {
                 res.status(500).json({'error': err.message});
