@@ -1,5 +1,27 @@
-.rad-margin {
-    margin-bottom: 20px;
+button.btn-default {
+    color: #333;
+    background-color: #e6e6e6;
+    border-color: #adadad;
+}
+
+button[disabled].btn-default {
+    color: #333;
+    background-color: #fff;
+    border-color: #ccc;
+}
+
+.margin-bottom {
+    margin-bottom: 15px;
+}
+
+.margin-left {
+    margin-left: -15px;
+}
+
+div.alert-info {
+    color: #333;
+    background-color: #f5f5f5;
+    border-color: #ddd;
 }
 
 .rad-pharagraph > form > div {

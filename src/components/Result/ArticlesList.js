@@ -1,6 +1,6 @@
 import React from 'react';
 import PharagraphsList from './PharagraphsList';
-import { Col } from 'react-bootstrap';
+import { Panel } from 'react-bootstrap';
 
 class ArticlesList extends React.Component {
     constructor(props) {
@@ -85,9 +85,11 @@ class ArticlesList extends React.Component {
         let pharagraphs = this.state.pharagraphs;
         let text = this.state.text;
         return (
-            <div className="rad-margin">
-                <Col mdOffset={3} md={4}>
-                    <h4>Article: {text}</h4>
+            <Panel>
+                <Panel.Heading>
+                    <h4>Article URL: {text}</h4>
+                </Panel.Heading>
+                <Panel.Body>
                     {
                         pharagraphs.map((pharagraph) => {
                             return <PharagraphsList
@@ -100,8 +102,8 @@ class ArticlesList extends React.Component {
                             />
                         })
                     }
-                </Col>
-            </div>
+                </Panel.Body>
+            </Panel>
         );
     }
 }

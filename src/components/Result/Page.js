@@ -20,14 +20,9 @@ class ResultPage extends React.Component {
         fetch('/api/results')
             .then((response) => response.json())
             .then((data) => {
-                console.log('data', data);
                 this.setState({
+                    title: 'Result page',
                     articles: data
-                });
-            })
-            .catch((error) => {
-                this.setState({
-                    error: error
                 });
             });
     }
@@ -42,25 +37,27 @@ class ResultPage extends React.Component {
 
     render() {
         let articles = this.state.articles;
-        return (
-            //TODO work on markup
-            <div>
-                { this.state.error ?
-                    <span>this.state.error</span> :
-                    <div className="row">
-                        <h2>Result page</h2>
-                        {
-                            articles.map((article) => {
-                                return <ArticlesList
-                                    key={article.articleUrl}
-                                    text={article.articleUrl}
-                                    pharagraphs={article.pharagraphs}
-                                    removeArticle={(i) => this.handleDelete(i)}
+        let title = this.state.title;
 
-                                />
-                            })
-                        }
-                    </div>
+        return (
+            <div>
+                <h2>{ title }</h2>
+                {
+                    this.state.error ? '':
+                    (
+                        <div>
+                            {
+                                articles.map((article) =>
+                                    <ArticlesList
+                                        key={article.articleUrl}
+                                        text={article.articleUrl}
+                                        pharagraphs={article.pharagraphs}
+                                        removeArticle={(i) => this.handleDelete(i)}
+                                    />
+                                )
+                            }
+                        </div>
+                    )
                 }
             </div>
         );

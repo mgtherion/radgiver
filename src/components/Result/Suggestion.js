@@ -1,5 +1,5 @@
 import React from 'react';
-import { ControlLabel, FormGroup, Col } from 'react-bootstrap';
+import { FormGroup, InputGroup, FormControl, ControlLabel, Button } from 'react-bootstrap';
 
 class Suggestion extends React.Component {
     constructor(props) {
@@ -14,15 +14,14 @@ class Suggestion extends React.Component {
         let text = this.state.text;
         return (
             <FormGroup>
-                <Col md={10}>{text}</Col>
-                <Col md={2}>
-                    <button
-                        type="submit"
-                        className="btn btn-success"
+                <div className="clearfix">
+                    <span>{text}</span>
+                    <Button
+                        bsClass="pull-right btn btn-default"
                         onClick={() => this.props.approve(text)}>
-                            approve
-                    </button>
-                </Col>
+                        Approve
+                    </Button>
+                </div>
             </FormGroup>
         );
     }

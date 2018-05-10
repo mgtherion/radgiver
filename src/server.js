@@ -39,6 +39,10 @@ mongodb.MongoClient.connect(process.env.MONGODB_URI, function(err, database) {
         return console.info(`Server running on http://localhost:${port}`);
     });
 });
+/*const port = process.env.PORT || 3000;
+server.listen(port, function() {
+    return console.info(`Server running on http://localhost:${port}`);
+});*/
 
 //TODO too complex
 const formatResults = (items) => {
@@ -106,6 +110,61 @@ app.get('/api/parse', (req, res) => {
 
 //TODO approve flag
 app.get('/api/results', (req, res) => {
+    /*let data = [
+        {
+            articleUrl: 'http://article1',
+            pharagraphs: [
+                {
+                    text: 'name1',
+                    suggestions: ['text1', 'text2', 'text3']
+                },
+                {
+                    text: 'name2',
+                    suggestions: ['text1', 'text2', 'text3']
+                },
+                {
+                    text: 'name3',
+                    suggestions: ['text1', 'text2', 'text3']
+                },
+            ]
+        },
+        {
+            articleUrl: 'http://article2',
+            pharagraphs: [
+                {
+                    text: 'name1',
+                    suggestions: ['text1', 'text2', 'text3']
+                },
+                {
+                    text: 'name2',
+                    suggestions: ['text1', 'text2', 'text3']
+                },
+                {
+                    text: 'name3',
+                    suggestions: ['text1', 'text2', 'text3']
+                },
+            ]
+        },
+        {
+            articleUrl: 'http://article3',
+            pharagraphs: [
+                {
+                    text: 'name1',
+                    suggestions: ['text1', 'text2', 'text3']
+                },
+                {
+                    text: 'name2',
+                    suggestions: ['text1', 'text2', 'text3']
+                },
+                {
+                    text: 'name3',
+                    suggestions: ['text1', 'text2', 'text3']
+                },
+            ]
+        }
+    ];
+    res.status(200).json(data);*/
+
     db.collection(SUGGESTIONS_COLLECTION).find({}).toArray(function(err, docs) {
         if (err) {
             res.status(500).json({'error': err.message});

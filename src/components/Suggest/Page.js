@@ -19,38 +19,47 @@ class SuggestPage extends React.Component {
 
     componentWillMount() {
         fetch('/api/parse?articleUrl=' + this.state.article)
-            .then((response) => response.json())
-            .then((data) => {
-                this.setState({
-                    status: 'loaded',
-                    title: data.title,
-                    pharagraphs: data.pharagraphs
-                });
+            .then((response) => {
+                return response.json()
             })
-            .catch((error) => {
-                this.setState({
-                    error: true,
-                    title: error.error
-                });
+            .then((data) => {
+                if (data.error) {
+                    this.setState({
+                        error: true,
+                        title: data.error
+                    });
+                } else {
+                    this.setState({
+                        title: data.title,
+                        pharagraphs: data.pharagraphs
+                    });
+                }
             });
-
     }
 
     render() {
         let title = this.state.title;
         let items = this.state.pharagraphs;
         let article = this.state.article;
+
         return (
-            <div className="row">
-                <h2>{title}</h2>
-                <h3>{this.state.error? '' : 'List of pharagraphs:'}</h3>
+            <div>
+                <h2>{ title }</h2>
                 {
-                    items.map((item) =>
-                        <Pharagraph
-                            key={item}
-                            text={item}
-                            article={article}
-                        />
+                    this.state.error? '' :
+                    (
+                        <div>
+                            <h3>List of pharagraphs</h3>
+                            {
+                                items.map((item) =>
+                                    <Pharagraph
+                                        key={item}
+                                        text={item}
+                                        article={article}
+                                    />
+                                )
+                            }
+                        </div>
                     )
                 }
             </div>

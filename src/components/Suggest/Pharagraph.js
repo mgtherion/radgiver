@@ -43,7 +43,7 @@ class Pharagraph extends React.Component {
 
         return (
             <div className="rad-margin rad-pharagraph">
-                <form onSubmit={this.handleSubmit}>
+                <form onSubmit={this.handleSubmit} className="margin-bottom">
                     <FormGroup>
                         <ControlLabel>{this.state.text}</ControlLabel>
                         <FormControl

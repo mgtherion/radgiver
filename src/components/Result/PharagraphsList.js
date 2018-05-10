@@ -1,6 +1,6 @@
 import React from 'react';
 import Suggestion from './Suggestion';
-import { ControlLabel, FormGroup, Col, Form } from 'react-bootstrap';
+import { Panel, ControlLabel, FormGroup, Col, Form, Button } from 'react-bootstrap';
 
 class PharagraphsList extends React.Component {
     constructor(props) {
@@ -30,20 +30,18 @@ class PharagraphsList extends React.Component {
         let newSuggestion = this.state.newSuggestion;
         const enabled = text !== newSuggestion;
         return (
-            <div className="rad-margin">
-                <Form horizontal onSubmit={this.handleSubmit}>
-                    <FormGroup>
-                        <Col md={10}><h5>{text}</h5></Col>
-                        <Col md={2}>
-                            <button
-                                type="submit"
-                                className="btn btn-danger"
-                                onClick={() => this.props.delete(text)}>
-                                    delete
-                            </button>
-                        </Col>
-                    </FormGroup>
-
+            <Panel>
+                <Panel.Heading>
+                    <div className="clearfix">
+                        <strong className="pull-left font-weight-bold">Original text: {text}</strong>
+                        <Button
+                            className="btn pull-right"
+                            onClick={() => this.props.delete(text)}>
+                                Delete
+                        </Button>
+                    </div>
+                </Panel.Heading>
+                <Panel.Body>
                     {
                         suggestions.map((suggestion) => {
                             return <Suggestion
@@ -54,25 +52,25 @@ class PharagraphsList extends React.Component {
                         })
                     }
                     <FormGroup>
-                        <Col md={10}>
-                            <input
-                                type="text"
-                                defaultValue={newSuggestion}
-                                onChange={this.handleEdit}>
-                            </input>
-                        </Col>
-                        <Col md={2}>
+                        <div className="clearfix margin-left">
+                            <div className="col-md-6">
+                                <input
+                                    class="form-control"
+                                    defaultValue={newSuggestion}
+                                    onChange={this.handleEdit}>
+                                </input>
+                            </div>
+
                             <button
-                                type="submit"
-                                className="btn btn-success"
+                                className="btn btn-default pull-right"
                                 onClick={() => this.props.create(text, newSuggestion)}
                                 disabled={!enabled}>
-                                    approve
+                                    Create&Approve
                             </button>
-                        </Col>
+                        </div>
                     </FormGroup>
-                </Form>
-            </div>
+                </Panel.Body>
+            </Panel>
         );
     }
 }
