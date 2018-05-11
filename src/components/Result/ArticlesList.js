@@ -74,9 +74,7 @@ class ArticlesList extends React.Component {
         this.setState({
             pharagraphs: pharagraphs
         })
-        console.log('pharagraphs', pharagraphs);
         if (!pharagraphs.length) {
-            console.log('remove');
             this.props.removeArticle(this.state.text);
         }
     }

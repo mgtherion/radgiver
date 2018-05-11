@@ -6,7 +6,8 @@ class Suggestion extends React.Component {
         super(props);
 
         this.state = {
-            text: props.text
+            text: props.text,
+            isApproved: props.isApproved
         }
     }
 
@@ -16,11 +17,23 @@ class Suggestion extends React.Component {
             <FormGroup>
                 <div className="clearfix">
                     <span>{text}</span>
-                    <Button
-                        bsClass="pull-right btn btn-default"
-                        onClick={() => this.props.approve(text)}>
-                        Approve
-                    </Button>
+                    {
+                        this.state.isApproved ?
+                        (
+                            <Button
+                                bsClass="pull-right btn btn-default"
+                                disabled>
+                                Approved
+                            </Button>
+                        ) :
+                        (
+                            <Button
+                                bsClass="pull-right btn btn-default"
+                                onClick={() => this.props.approve(text)}>
+                                Approve
+                            </Button>
+                        )
+                    }
                 </div>
             </FormGroup>
         );

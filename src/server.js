@@ -40,10 +40,6 @@ mongodb.MongoClient.connect(process.env.MONGODB_URI, function(err, database) {
     });
 });
 
-/*const port = process.env.PORT || 3000;
-server.listen(port, function() {
-    return console.info(`Server running on http://localhost:${port}`);
-});*/
 
 const formatResults = (items, showApproved = false) => {
     let articles = new Set(items.map(item => item.articleUrl));
@@ -62,7 +58,7 @@ const formatResults = (items, showApproved = false) => {
         for (let pName of [...pharagraphs]) {
             let pharagraph = {
                 text: pName,
-                suggestions: []
+                suggestions: [],
             }
 
             let suggestionsByOriginal = suggestionsByArticle
@@ -73,7 +69,10 @@ const formatResults = (items, showApproved = false) => {
                 if (item.isApproved) {
                     hasApproved = true;
                 }
-                pharagraph.suggestions.push(item.usersText);
+                pharagraph.suggestions.push({
+                    text: item.usersText,
+                    isApproved: item.isApproved
+                });
             });
             if (hasApproved === showApproved) {
                 article.pharagraphs.push(pharagraph);
@@ -120,7 +119,7 @@ app.get('/api/parse', (req, res) => {
     });
 });
 
-//TODO approve flag
+
 app.get('/api/results', (req, res) => {
     let showApproved = (req.query.showApproved == 'true');
 
@@ -134,18 +133,26 @@ app.get('/api/results', (req, res) => {
 });
 
 app.post('/api/suggest', (req, res) => {
-    let newSuggestion = {
+    let suggestion = {
         articleUrl: req.body.articleUrl,
-        originalText: req.body.originalText,
-        usersText: req.body.usersText,
-        isApproved: req.body.isApproved == 'true'//TODO WHAT ? true: false
+        originalText: req.body.originalText
     }
 
+    if (req.body.isApproved) {
+        db.collection(SUGGESTIONS_COLLECTION).updateMany(
+            suggestion,
+            { $set: { 'isApproved': false }},
+            () => {}
+        );
+    }
+
+    suggestion.usersText = req.body.usersText;
+    suggestion.isApproved = req.body.isApproved;
+
     db.collection(SUGGESTIONS_COLLECTION).insertOne(
-        newSuggestion,
+        suggestion,
         function(err, docs) {
             if (err) {
-                console.log('ERROR', err);
                 res.status(500).json({'error': err.message});
             } else {
                 res.status(201).json(docs);
@@ -178,17 +185,6 @@ app.post('/api/approve', (req, res) => {
                         }
                     }
                 );
-            }
-        }
-    );
-    db.collection(SUGGESTIONS_COLLECTION).updateOne(
-        suggestion,
-        { $set: { 'isApproved': true }},
-        function(err, docs) {
-            if (err) {
-                res.status(500).json({'error': err.message});
-            } else {
-                res.status(201).json(docs);
             }
         }
     );

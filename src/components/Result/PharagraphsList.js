@@ -45,8 +45,9 @@ class PharagraphsList extends React.Component {
                     {
                         suggestions.map((suggestion) => {
                             return <Suggestion
-                                key={suggestion}
-                                text={suggestion}
+                                key={suggestion.text}
+                                text={suggestion.text}
+                                isApproved={suggestion.isApproved}
                                 approve={(s) => {this.props.approve(text, s)}}
                             />
                         })
